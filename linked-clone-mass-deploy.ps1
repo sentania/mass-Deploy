@@ -11,6 +11,7 @@ $vmtarget = 150
 $maxthreads = 15
 #endregion
 $stopwatch =  [system.diagnostics.stopwatch]::StartNew()
+Wrie-host "Start time: " $date
 $scriptblock = { 
 Function New-VMLinkedClone ($vcenterServer, $targetVM, $baseVM, $targetDatastore, $resourcePool, $basesnapshot) {
         
@@ -61,7 +62,7 @@ while ($count -le $vmtarget) {
     while ($activescripts.count -ge $maxthreads) {
         
         # Pause for 5 seconds before rechecking
-        start-sleep -Seconds 5
+        start-sleep -Seconds 2
 
         # Wait for Queue to Open - Query the current script Process ID ($pid) to see if any of the child scripts are still running.
         $activescripts = get-wmiobject win32_process | Where {$_.ParentProcessID -eq $pid } | Select Name
@@ -71,5 +72,7 @@ while ($count -le $vmtarget) {
     Start-Process PowerShell.exe -ArgumentList "-Command",$scriptblock,"New-VMLinkedClone $vCenterServer $count $baseVM $targetDatastore '$cluster' $SnapShot"
     $count++
 }
+Write-host "Elasped Stopwatch time: " $stopwatch
+Wrie-host "Stop time: " $date
 $stopwatch
 $stopwatch.stop()
