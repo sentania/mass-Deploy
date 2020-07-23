@@ -1,43 +1,38 @@
 ﻿ #region VARIABLE BLOCK
 
-$vcenterServer = "vcenter.int.sentania.net"
-$targetDatastore = "vsanDatastore"
-$cluster = "Cluster 1"
-$targetVMCount = 100
-$baseVM = "centOS7-template"
+$vcenterServer = "vcva.far-away.galaxy"
+$targetDatastore = "Scarif-Flash1"
+$cluster = "Raxus Prime"
+$targetVMCount = 3
+$baseVM = "photon_minimal_template"
+
 # Fake array of systems
-$vmtarget = 150
+$vmtarget = 3
 # Maximum Number Of Threads
-$maxthreads = 15
+$maxthreads = 1
 #endregion
 $stopwatch =  [system.diagnostics.stopwatch]::StartNew()
-Write-host "Start time: " (get-date)
-$credential = get-credential
-$credential | Export-Clixml -Path "C:\temp\credential.xml"
+Write-host "Start time: " $date
+#Run this one time to store passord
+#$vCenterUser="administrator@vsphere.local"
+#Get-Credential -Message "Enter $vcenterUser password to store." -UserName $vCenterUser |export-clixml -path "c:\temp\credential.xml"
 
 #Create script block
 $scriptblock = { 
-function deployVM ($vcenterServer, $targetVM, $baseVM, $targetDatastore, $resourcePool, $basesnapshot)
-{
-Write-host "Loading subscript, Loop $mycount" -ForegroundColor Green
-$myCredential = import-clixml -Path "C:\temp\credential.xml"
-
-Write-host "Connecting to vCenter...." -ForegroundColor Green
-
-$vConnection = connect-viserver -server $vcenterServer -Credential $myCredential -ErrorAction Continue ####CHANGE ME
-
-Write-host "Deploying VM...." -ForegroundColor Green
-###to use a template that isn't in a template library - change the -contentlibrary option to -template below
-
-$myVM = New-VM -ContentLibraryItem 'centos7Template' -Name "fullclone-$pid" -ResourcePool (Get-Cluster -name $resourcePool) -DiskStorageFormat Thin -Datastore (Get-Datastore -Name $targetDatastore) -ErrorAction Continue
-
-Write-host "Starting VM..." -ForegroundColor Green
-$myVM | Start-VM -ErrorAction Continue
-}
+    function deployVM ($vcenterServer, $Cluster, $targetDatastore, $baseVM, $mycount)
+    {
+        Write-host "Loading subscript, Loop $mycount" -ForegroundColor Green
+        $myCredential = import-clixml -Path "C:\temp\credential.xml"
+        Write-host "Connecting to vCenter...." -ForegroundColor Green
+        $vConnection = connect-viserver -server $vcenterServer -Credential $myCredential -ErrorAction Continue
+        Write-host "Deploying VM...." -ForegroundColor Green
+        #$myVM = New-VM -ContentLibraryItem 'centos7Template' -Name "fullclone-$pid" -ResourcePool (Get-Cluster -name 'Cluster 1') -DiskStorageFormat Thin -Datastore (Get-Datastore -Name 'vsanDatastore') -ErrorAction Continue
+        $myVM = New-VM -Template $baseVM -Name "fullclone-$pid" -ResourcePool (Get-Cluster -name $Cluster) -DiskStorageFormat Thin -Datastore (Get-Datastore -Name $targetDatastore) -ErrorAction Continue
+        Write-host "Starting VM..." -ForegroundColor Green
+        $myVM | Start-VM -ErrorAction Continue
+    }
 
 }
-
-
 
 $count = 1
 
@@ -61,9 +56,9 @@ while ($count -le $vmtarget) {
         
     }
     write-host "Starting Loop: $count"
-    Start-Process PowerShell.exe -ArgumentList "-Command",$scriptblock,"deployVM $vCenterServer $count $baseVM $targetDatastore '$cluster' $SnapShot"
+    Start-Process PowerShell.exe -ArgumentList "-Command",$scriptblock,"deployVM '$vcenterServer' '$Cluster' '$targetDatastore' '$baseVM' $mycount"
    $count++
 }
 $stopwatch
-Write-host "Stop time: " $date
+write-host "Stop time: " $date
 $stopwatch.stop()
