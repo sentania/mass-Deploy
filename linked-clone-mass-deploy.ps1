@@ -10,7 +10,7 @@ $vmtarget = 150
 # Maximum Number Of Threads
 $maxthreads = 15
 #endregion
-
+$stopwatch =  [system.diagnostics.stopwatch]::StartNew()
 $scriptblock = { 
 Function New-VMLinkedClone ($vcenterServer, $targetVM, $baseVM, $targetDatastore, $resourcePool, $basesnapshot) {
         
@@ -71,3 +71,5 @@ while ($count -le $vmtarget) {
     Start-Process PowerShell.exe -ArgumentList "-Command",$scriptblock,"New-VMLinkedClone $vCenterServer $count $baseVM $targetDatastore '$cluster' $SnapShot"
     $count++
 }
+$stopwatch
+$stopwatch.stop()

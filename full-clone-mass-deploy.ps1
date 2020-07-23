@@ -10,7 +10,7 @@ $vmtarget = 150
 # Maximum Number Of Threads
 $maxthreads = 15
 #endregion
-
+$stopwatch =  [system.diagnostics.stopwatch]::StartNew()
 $credential = get-credential
 $credential | Export-Clixml -Path "C:\temp\credential.xml"
 
@@ -62,3 +62,5 @@ while ($count -le $vmtarget) {
     Start-Process PowerShell.exe -ArgumentList "-Command",$scriptblock,"deployVM($count)"
    $count++
 }
+$stopwatch
+$stopwatch.stop()
