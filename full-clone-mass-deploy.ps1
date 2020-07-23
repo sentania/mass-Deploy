@@ -59,7 +59,7 @@ while ($count -le $vmtarget) {
         $activescripts = get-wmiobject win32_process | Where {$_.ParentProcessID -eq $pid } | Select Name
         
     }
-
+    write-host "Starting Loop: $count"
     Start-Process PowerShell.exe -ArgumentList "-Command",$scriptblock,"deployVM($count)"
    $count++
 }
