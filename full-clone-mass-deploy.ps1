@@ -11,7 +11,7 @@ $vmtarget = 150
 $maxthreads = 15
 #endregion
 $stopwatch =  [system.diagnostics.stopwatch]::StartNew()
-Wrie-host "Start time: " $date
+Write-host "Start time: " $date
 $credential = get-credential
 $credential | Export-Clixml -Path "C:\temp\credential.xml"
 
@@ -53,7 +53,7 @@ while ($count -le $vmtarget) {
     while ($activescripts.count -ge $maxthreads) {
         
         # Pause for 5 seconds before rechecking
-        start-sleep -Seconds 2
+        start-sleep -Seconds 5
 
         # Wait for Queue to Open - Query the current script Process ID ($pid) to see if any of the child scripts are still running.
         $activescripts = get-wmiobject win32_process | Where {$_.ParentProcessID -eq $pid } | Select Name
