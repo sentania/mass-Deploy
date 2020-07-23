@@ -17,7 +17,7 @@ $credential | Export-Clixml -Path "C:\temp\credential.xml"
 
 #Create script block
 $scriptblock = { 
-function deployVM ($myvCenter, $mycount)
+function deployVM ($myvCenter, $mycount, $myCluster, $mydatastore)
 {
 Write-host "Loading subscript, Loop $mycount" -ForegroundColor Green
 $myCredential = import-clixml -Path "C:\temp\credential.xml"
@@ -29,7 +29,7 @@ $vConnection = connect-viserver -server $myvCenter -Credential $myCredential -Er
 Write-host "Deploying VM...." -ForegroundColor Green
 ###to use a template that isn't in a template library - change the -contentlibrary option to -template below
 
-$myVM = New-VM -ContentLibraryItem 'centos7Template' -Name "fullclone-$pid" -ResourcePool (Get-Cluster -name 'Cluster 1') -DiskStorageFormat Thin -Datastore (Get-Datastore -Name 'vsanDatastore') -ErrorAction Continue
+$myVM = New-VM -ContentLibraryItem 'centos7Template' -Name "fullclone-$pid" -ResourcePool (Get-Cluster -name $myCluster) -DiskStorageFormat Thin -Datastore (Get-Datastore -Name $mydatastore) -ErrorAction Continue
 
 Write-host "Starting VM..." -ForegroundColor Green
 $myVM | Start-VM -ErrorAction Continue
@@ -61,7 +61,7 @@ while ($count -le $vmtarget) {
         
     }
     write-host "Starting Loop: $count"
-    Start-Process PowerShell.exe -ArgumentList "-Command",$scriptblock,"deployVM $myvCenter $count"
+    Start-Process PowerShell.exe -ArgumentList "-Command",$scriptblock,"deployVM $myvCenter $count '$cluster' $datastore"
    $count++
 }
 $stopwatch
