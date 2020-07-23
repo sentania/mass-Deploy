@@ -11,22 +11,24 @@ $vmtarget = 150
 $maxthreads = 15
 #endregion
 $stopwatch =  [system.diagnostics.stopwatch]::StartNew()
-Write-host "Start time: " $date
+Write-host "Start time: " (get-date)
 $credential = get-credential
 $credential | Export-Clixml -Path "C:\temp\credential.xml"
 
 #Create script block
 $scriptblock = { 
-function deployVM ($mycount)
+function deployVM ($myvCenter, $mycount)
 {
 Write-host "Loading subscript, Loop $mycount" -ForegroundColor Green
 $myCredential = import-clixml -Path "C:\temp\credential.xml"
 
 Write-host "Connecting to vCenter...." -ForegroundColor Green
 
-$vConnection = connect-viserver -server vcenter.int.sentania.net -Credential $myCredential -ErrorAction Continue ####CHANGE ME
+$vConnection = connect-viserver -server $myvCenter -Credential $myCredential -ErrorAction Continue ####CHANGE ME
 
 Write-host "Deploying VM...." -ForegroundColor Green
+###to use a template that isn't in a template library - change the -contentlibrary option to -template below
+
 $myVM = New-VM -ContentLibraryItem 'centos7Template' -Name "fullclone-$pid" -ResourcePool (Get-Cluster -name 'Cluster 1') -DiskStorageFormat Thin -Datastore (Get-Datastore -Name 'vsanDatastore') -ErrorAction Continue
 
 Write-host "Starting VM..." -ForegroundColor Green
@@ -34,7 +36,6 @@ $myVM | Start-VM -ErrorAction Continue
 }
 
 }
-
 
 
 
@@ -60,9 +61,9 @@ while ($count -le $vmtarget) {
         
     }
     write-host "Starting Loop: $count"
-    Start-Process PowerShell.exe -ArgumentList "-Command",$scriptblock,"deployVM($count)"
+    Start-Process PowerShell.exe -ArgumentList "-Command",$scriptblock,"deployVM $myvCenter $count"
    $count++
 }
 $stopwatch
-Wrie-host "Stop time: " $date
+Write-host "Stop time: " $date
 $stopwatch.stop()

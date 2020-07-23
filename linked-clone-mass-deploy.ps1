@@ -11,7 +11,7 @@ $vmtarget = 150
 $maxthreads = 15
 #endregion
 $stopwatch =  [system.diagnostics.stopwatch]::StartNew()
-Wrie-host "Start time: " $date
+Wrie-host "Start time: " (get-date)
 $scriptblock = { 
 Function New-VMLinkedClone ($vcenterServer, $targetVM, $baseVM, $targetDatastore, $resourcePool, $basesnapshot) {
         
@@ -73,6 +73,6 @@ while ($count -le $vmtarget) {
     $count++
 }
 Write-host "Elasped Stopwatch time: " $stopwatch
-Wrie-host "Stop time: " $date
+Write-host "Stop time: " $date
 $stopwatch
 $stopwatch.stop()
