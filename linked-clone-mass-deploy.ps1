@@ -27,13 +27,8 @@ Function New-VMLinkedClone ($vcenterServer, $targetVM, $baseVM, $targetDatastore
 
 }
 
-
-
-#$credential = get-credential
-#$credential | Export-Clixml -Path "C:\temp\credential.xml"
-
-
-
+$credential = get-credential
+$credential | Export-Clixml -Path "C:\temp\credential.xml"
 
 # For This Example, Display the Parent Windows Process ID
 write-host "Parent Window Process Id: $pid"

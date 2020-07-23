@@ -11,8 +11,8 @@ $vmtarget = 150
 $maxthreads = 15
 #endregion
 
-#$credential = get-credential
-#$credential | Export-Clixml -Path "C:\temp\credential.xml"
+$credential = get-credential
+$credential | Export-Clixml -Path "C:\temp\credential.xml"
 
 #Create script block
 $scriptblock = { 
